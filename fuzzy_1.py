@@ -1,3 +1,4 @@
+
 def down(x, xmin, xmax):
     return (xmax - x) / (xmax - xmin)
 
@@ -48,3 +49,51 @@ class Persediaan():
 class Produksi():
     minimum = 1000
     maximum = 5000
+    permintaan = 0
+    persediaan = 0
+
+    def _berkurang(self, a):
+        return self.maximum - a*(self.maximum - self.minimum)
+
+    def _bertambah(self, a):
+        return a*(self.maximum - self.minimum) + self.minimum
+
+    def _inferensi(self):
+        pmt = Permintaan()
+        psd = Persediaan()
+
+        result = []
+        # [R1] JIKA Permintaan TURUN, dan Persediaan BANYAK, MAKA
+        # Produksi Barang BERKURANG.
+        a1 = min(pmt.turun(self.permintaan), psd.banyak(self.persediaan))
+        z1 = self._berkurang(a1)
+        result.append((a1, z1))
+        # [R2] JIKA Permintaan TURUN, dan Persediaan SEDIKIT, MAKA
+        # Produksi Barang BERKURANG.
+        a2 = min(pmt.turun(self.permintaan), psd.sedikit(self.persediaan))
+        z2 = self._berkurang(a2)
+        result.append((a2, z2))
+        # [R3] JIKA Permintaan NAIK, dan Persediaan BANYAK, MAKA
+        # Produksi Barang BERTAMBAH.
+        a3 = min(pmt.naik(self.permintaan), psd.banyak(self.persediaan))
+        z3 = self._bertambah(a3)
+        result.append((a3, z3))
+        # [R4] JIKA Permintaan NAIK, dan Persediaan SEDIKIT, MAKA
+        # Produksi Barang BERTAMBAH.
+        a4 = min(pmt.naik(self.permintaan), psd.sedikit(self.persediaan))
+        z4 = self._bertambah(a4)
+        result.append((a4, z4))
+        return result
+    
+    def defuzifikasi(self):
+        # (α1∗z1+α2∗z2+α3∗z3+α4∗z4) / (α1+α2+α3+α4)
+        data_inferensi = self._inferensi()
+        res_a_z = 0
+        res_a = 0
+        for data in data_inferensi:
+            # data[0] = a 
+            # data[1] = z
+            res_a_z += data[0] * data[1]
+            res_a += data[0]
+
+        return res_a_z/res_a
