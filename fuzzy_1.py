@@ -58,10 +58,7 @@ class Produksi():
     def _bertambah(self, a):
         return a*(self.maximum - self.minimum) + self.minimum
 
-    def _inferensi(self):
-        pmt = Permintaan()
-        psd = Persediaan()
-
+    def _inferensi(self, pmt=Permintaan(), psd=Persediaan()):
         result = []
         # [R1] JIKA Permintaan TURUN, dan Persediaan BANYAK, MAKA
         # Produksi Barang BERKURANG.
@@ -85,9 +82,9 @@ class Produksi():
         result.append((a4, z4))
         return result
     
-    def defuzifikasi(self):
+    def defuzifikasi(self, data_inferensi=[]):
         # (α1∗z1+α2∗z2+α3∗z3+α4∗z4) / (α1+α2+α3+α4)
-        data_inferensi = self._inferensi()
+        data_inferensi = data_inferensi if data_inferensi else self._inferensi()
         res_a_z = 0
         res_a = 0
         for data in data_inferensi:
@@ -95,5 +92,4 @@ class Produksi():
             # data[1] = z
             res_a_z += data[0] * data[1]
             res_a += data[0]
-
         return res_a_z/res_a
